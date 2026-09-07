@@ -1,0 +1,10 @@
+# Copy this file to connection.options.yaml (same folder) and fill in your
+# actual Neon username/password, base64-encoded. This file is gitignored —
+# it never gets committed or seen by anyone but you.
+#
+# To base64-encode a value:
+#   macOS/Linux:   echo -n 'your_actual_value' | base64
+#   Windows (PS):  [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('your_actual_value'))
+#
+user: BASE64_ENCODED_USERNAME_HERE
+password: BASE64_ENCODED_PASSWORD_HERE

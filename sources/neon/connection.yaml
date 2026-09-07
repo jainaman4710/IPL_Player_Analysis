@@ -1,0 +1,7 @@
+name: neon
+type: postgres
+options:
+  host: ep-round-darkness-ao93xc1d-pooler.c-2.ap-southeast-1.aws.neon.tech
+  port: 5432
+  database: neondb
+  ssl: true
