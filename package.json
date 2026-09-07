@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.1.2",
-    "autoprefixer": "^10.5.5"
+    "autoprefixer": "^10.5.5",
+    "git-remote-origin-url": "^4.0.0"
   }
 }
