@@ -5,11 +5,12 @@ title: Batting
 # Batting
 
 Filter any combination — season, team, phase, opponent bowler type, home/away
-— and the table below recomputes live. All filters default to "everything
-selected"; narrow any of them to slice the data, e.g. 2025 + vs Spin + Death.
+— and the table recomputes live, e.g. 2025 + vs Spin + Death. MVP and SAV
+points (batting component) are shown here too; each also has its own
+dedicated page with full detail and Top 5 leaderboards.
 
 ```sql batting_data
-select * from neon.batting_filterable
+select * from neon.batting_fact_grain
 ```
 
 ```sql seasons
@@ -43,14 +44,15 @@ select
     player_id,
     player_name,
     max(batting_role) as batting_role,
-    max(temperament) as temperament,
-    count(*) as balls_faced,
-    sum(runs_batter) as total_runs,
-    sum(case when is_dismissal then 1 else 0 end) as dismissals,
-    round(sum(runs_batter) * 100.0 / count(*), 2) as strike_rate,
-    case when sum(case when is_dismissal then 1 else 0 end) = 0 then null
-         else round(sum(runs_batter) * 1.0 / sum(case when is_dismissal then 1 else 0 end), 2)
-    end as average
+    sum(balls_faced) as balls_faced,
+    sum(runs) as total_runs,
+    sum(dismissals) as dismissals,
+    round(sum(runs) * 100.0 / nullif(sum(balls_faced), 0), 2) as strike_rate,
+    case when sum(dismissals) = 0 then null
+         else round(sum(runs) * 1.0 / sum(dismissals), 2)
+    end as average,
+    round(sum(batting_mvp_points), 2) as batting_mvp,
+    round(sum(batting_sav), 2) as batting_sav
 from ${batting_data}
 where season in ${inputs.season_filter.value}
   and team in ${inputs.team_filter.value}
@@ -58,19 +60,22 @@ where season in ${inputs.season_filter.value}
   and vs_bowler_type in ${inputs.bowler_type_filter.value}
   and home_away in ${inputs.home_away_filter.value}
 group by player_id, player_name
-having count(*) > 0
+having sum(balls_faced) > 0
 order by total_runs desc
 ```
 
 ## Results
 
-<DataTable data={filtered_batting} search=true rows=20>
+Click any column header to sort.
+
+<DataTable data={filtered_batting} search=true rows=20 downloadable=false>
   <Column id=player_name title="Player" />
   <Column id=batting_role title="Role" />
-  <Column id=temperament />
   <Column id=balls_faced title="Balls" />
   <Column id=total_runs title="Runs" />
   <Column id=strike_rate title="SR" />
   <Column id=average title="Avg" />
   <Column id=dismissals />
+  <Column id=batting_mvp title="Batting MVP" />
+  <Column id=batting_sav title="Batting SAV" />
 </DataTable>

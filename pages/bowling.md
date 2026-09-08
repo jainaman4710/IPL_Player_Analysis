@@ -5,12 +5,12 @@ title: Bowling
 # Bowling
 
 Filter any combination — season, team, phase, opponent batting hand,
-home/away — and the table recomputes live. All filters default to
-"everything selected". This is the page your example maps to directly:
-2025 + vs LHB + Death.
+home/away — and the table recomputes live, e.g. 2025 + vs LHB + Death.
+MVP and SAV points (bowling component) are shown here too; each also has
+its own dedicated page with full detail and Top 5 leaderboards.
 
 ```sql bowling_data
-select * from neon.bowling_filterable
+select * from neon.bowling_fact_grain
 ```
 
 ```sql seasons
@@ -46,12 +46,14 @@ select
     max(engagement_band) as engagement_band,
     bool_or(has_powerplay_trust) as has_powerplay_trust,
     bool_or(has_death_trust) as has_death_trust,
-    count(*) filter (where is_legal_ball) as legal_balls,
+    sum(legal_balls) as legal_balls,
     sum(runs_conceded) as runs_conceded,
-    sum(case when is_bowler_wicket then 1 else 0 end) as wickets,
-    round(sum(runs_conceded) * 6.0 / nullif(count(*) filter (where is_legal_ball), 0), 2) as economy,
-    round(count(*) filter (where is_legal_ball) * 1.0 / nullif(sum(case when is_bowler_wicket then 1 else 0 end), 0), 2) as strike_rate,
-    round(sum(runs_conceded) * 1.0 / nullif(sum(case when is_bowler_wicket then 1 else 0 end), 0), 2) as average
+    sum(wickets) as wickets,
+    round(sum(runs_conceded) * 6.0 / nullif(sum(legal_balls), 0), 2) as economy,
+    round(sum(legal_balls) * 1.0 / nullif(sum(wickets), 0), 2) as strike_rate,
+    round(sum(runs_conceded) * 1.0 / nullif(sum(wickets), 0), 2) as average,
+    round(sum(bowling_mvp_points), 2) as bowling_mvp,
+    round(sum(bowling_sav), 2) as bowling_sav
 from ${bowling_data}
 where season in ${inputs.season_filter.value}
   and team in ${inputs.team_filter.value}
@@ -59,13 +61,15 @@ where season in ${inputs.season_filter.value}
   and vs_batting_hand in ${inputs.hand_filter.value}
   and home_away in ${inputs.home_away_filter.value}
 group by player_id, player_name
-having count(*) filter (where is_legal_ball) > 0
+having sum(legal_balls) > 0
 order by wickets desc, economy asc
 ```
 
 ## Results
 
-<DataTable data={filtered_bowling} search=true rows=20>
+Click any column header to sort.
+
+<DataTable data={filtered_bowling} search=true rows=20 downloadable=false>
   <Column id=player_name title="Player" />
   <Column id=engagement_band title="Engagement" />
   <Column id=has_powerplay_trust title="PP Trust" contentType=colorscale />
@@ -76,4 +80,6 @@ order by wickets desc, economy asc
   <Column id=economy />
   <Column id=strike_rate title="SR" />
   <Column id=average title="Avg" />
+  <Column id=bowling_mvp title="Bowling MVP" />
+  <Column id=bowling_sav title="Bowling SAV" />
 </DataTable>
