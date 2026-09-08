@@ -4,46 +4,71 @@ title: Batting
 
 # Batting
 
-Raw season-specific stats with dashboard filters — no sample-size floor, no
-composite score. Splits (vs Pace, vs Spin, Home, Away, Powerplay, Middle,
-Death) are pre-computed as separate rows rather than a dynamic filter — use
-search or group-by to slice.
-
-**Batting role** (Top Order / Middle Order / Finisher / Tail) is derived
-from each player's *median actual batting position* across all innings
-played, not from the scouting `playing_role` label — bucketed as
-positions 1–3 / 4–6 / 7–8 / 9–11. This is a judgment call, not a spec-given
-boundary — flag if you want different cutoffs.
-
-**Temperament** (Anchor / Aggressor): a strict median split of Overall
-strike rate *within each batting role* — above the role's median is
-Aggressor, at or below is Anchor. Peer group is the derived batting role
-above, not the metadata `playing_role`.
+Filter any combination — season, team, phase, opponent bowler type, home/away
+— and the table below recomputes live. All filters default to "everything
+selected"; narrow any of them to slice the data, e.g. 2025 + vs Spin + Death.
 
 ```sql batting_data
-select * from neon.batting_evaluation
+select * from neon.batting_filterable
 ```
 
-```sql temperament_data
-select * from neon.batting_temperament
+```sql seasons
+select distinct season from ${batting_data} order by season
 ```
 
-## Temperament (Anchor / Aggressor)
+```sql teams
+select distinct team from ${batting_data} order by team
+```
 
-<DataTable data={temperament_data} search=true groupBy="batting_role" rows=15>
+```sql phases
+select distinct phase from ${batting_data} order by phase
+```
+
+```sql bowler_types
+select distinct vs_bowler_type from ${batting_data} order by vs_bowler_type
+```
+
+```sql home_away_options
+select distinct home_away from ${batting_data} order by home_away
+```
+
+<Dropdown data={seasons} name=season_filter value=season multiple=true selectAllByDefault=true title="Season" />
+<Dropdown data={teams} name=team_filter value=team multiple=true selectAllByDefault=true title="Team" />
+<Dropdown data={phases} name=phase_filter value=phase multiple=true selectAllByDefault=true title="Phase" />
+<Dropdown data={bowler_types} name=bowler_type_filter value=vs_bowler_type multiple=true selectAllByDefault=true title="vs Bowler Type" />
+<Dropdown data={home_away_options} name=home_away_filter value=home_away multiple=true selectAllByDefault=true title="Home / Away" />
+
+```sql filtered_batting
+select
+    player_id,
+    player_name,
+    max(batting_role) as batting_role,
+    max(temperament) as temperament,
+    count(*) as balls_faced,
+    sum(runs_batter) as total_runs,
+    sum(case when is_dismissal then 1 else 0 end) as dismissals,
+    round(sum(runs_batter) * 100.0 / count(*), 2) as strike_rate,
+    case when sum(case when is_dismissal then 1 else 0 end) = 0 then null
+         else round(sum(runs_batter) * 1.0 / sum(case when is_dismissal then 1 else 0 end), 2)
+    end as average
+from ${batting_data}
+where season in ${inputs.season_filter.value}
+  and team in ${inputs.team_filter.value}
+  and phase in ${inputs.phase_filter.value}
+  and vs_bowler_type in ${inputs.bowler_type_filter.value}
+  and home_away in ${inputs.home_away_filter.value}
+group by player_id, player_name
+having count(*) > 0
+order by total_runs desc
+```
+
+## Results
+
+<DataTable data={filtered_batting} search=true rows=20>
   <Column id=player_name title="Player" />
   <Column id=batting_role title="Role" />
-  <Column id=strike_rate title="Overall SR" />
-  <Column id=median_sr title="Role Median SR" />
   <Column id=temperament />
-</DataTable>
-
-## All players, all splits
-
-<DataTable data={batting_data} search=true groupBy="split_type" rows=15>
-  <Column id=player_name title="Player" />
-  <Column id=batting_role title="Role" />
-  <Column id=balls_faced />
+  <Column id=balls_faced title="Balls" />
   <Column id=total_runs title="Runs" />
   <Column id=strike_rate title="SR" />
   <Column id=average title="Avg" />
