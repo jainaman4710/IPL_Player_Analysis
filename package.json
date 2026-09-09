@@ -7,7 +7,8 @@
     "dev": "evidence dev",
     "build": "evidence build",
     "build:strict": "evidence build:strict",
-    "preview": "evidence preview"
+    "preview": "evidence preview",
+    "postinstall": "patch-package"
   },
   "engines": {
     "npm": ">=7.0.0",
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.1.2",
     "autoprefixer": "^10.5.5",
-    "git-remote-origin-url": "^4.0.0"
+    "git-remote-origin-url": "^4.0.0",
+    "patch-package": "^8.0.1"
   }
 }
