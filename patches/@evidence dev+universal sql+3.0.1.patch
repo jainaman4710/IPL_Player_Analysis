@@ -1,0 +1,53 @@
+diff --git a/node_modules/@evidence-dev/universal-sql/src/client-duckdb/browser.js b/node_modules/@evidence-dev/universal-sql/src/client-duckdb/browser.js
+index 27c5b43..b2ffe51 100644
+--- a/node_modules/@evidence-dev/universal-sql/src/client-duckdb/browser.js
++++ b/node_modules/@evidence-dev/universal-sql/src/client-duckdb/browser.js
+@@ -3,7 +3,8 @@ import {
+ 	AsyncDuckDB,
+ 	ConsoleLogger,
+ 	DuckDBDataProtocol,
+-	getPlatformFeatures,
++	getJsDelivrBundles,
++	selectBundle,
+ 	VoidLogger
+ } from '@duckdb/duckdb-wasm';
+ 
+@@ -35,28 +36,24 @@ export async function initDB() {
+ 	// to initialize the database
+ 	initializing = true;
+ 	try {
+-		const useEh = await getPlatformFeatures().then((x) => x.wasmExceptions);
++		// Load DuckDB-Wasm from the jsDelivr CDN instead of bundling the ~35-40MB
++		// wasm binaries into the site's own static assets (Cloudflare Workers/Pages
++		// enforce a 25MB per-file limit, which the self-hosted bundle exceeds).
++		const bundle = await selectBundle(getJsDelivrBundles());
+ 
+-		const DUCKDB_CONFIG = useEh
+-			? {
+-					mainModule: (await import('@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url')).default,
+-					mainWorker: (await import('@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?worker'))
+-						.default
+-				}
+-			: {
+-					mainModule: (await import('@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url')).default,
+-					mainWorker: (await import('@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?worker'))
+-						.default
+-				};
++		const workerUrl = URL.createObjectURL(
++			new Blob([`importScripts("${bundle.mainWorker}");`], { type: 'text/javascript' })
++		);
+ 
+ 		const logger = import.meta.env.VITE_EVIDENCE_DEBUG ? new ConsoleLogger() : new VoidLogger();
+-		const worker = new DUCKDB_CONFIG.mainWorker();
++		const worker = new Worker(workerUrl);
+ 
+ 		// use an intermediate variable to prevent db from being a not-ready database
+ 		const _db = new AsyncDuckDB(logger, worker);
+ 		window[Symbol.for('EVIDENCE_QUERY_ENGINE')] = _db;
+ 
+-		await _db.instantiate(DUCKDB_CONFIG.mainModule);
++		await _db.instantiate(bundle.mainModule, bundle.pthreadWorker);
++		URL.revokeObjectURL(workerUrl);
+ 		db = _db;
+ 
+ 		await db.open({
