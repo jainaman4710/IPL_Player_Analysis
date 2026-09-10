@@ -1,5 +1,5 @@
 diff --git a/node_modules/@evidence-dev/universal-sql/src/client-duckdb/browser.js b/node_modules/@evidence-dev/universal-sql/src/client-duckdb/browser.js
-index 27c5b43..b2ffe51 100644
+index 27c5b43..0361cd4 100644
 --- a/node_modules/@evidence-dev/universal-sql/src/client-duckdb/browser.js
 +++ b/node_modules/@evidence-dev/universal-sql/src/client-duckdb/browser.js
 @@ -3,7 +3,8 @@ import {
@@ -51,3 +51,23 @@ index 27c5b43..b2ffe51 100644
  		db = _db;
  
  		await db.open({
+@@ -132,7 +129,18 @@ export async function setParquetURLs(urls, { append, addBasePath = (x) => x } =
+ 					await emptyDbFs(file_name);
+ 					await emptyDbFs(url);
+ 				}
+-				await db.registerFileURL(file_name, addBasePath(path), DuckDBDataProtocol.HTTP, false);
++				// The worker created in initDB() is spawned from a blob: URL (needed to
++				// load the wasm/worker cross-origin from jsDelivr), so its own self.location
++				// is opaque and can't be used to resolve a root-relative path like
++				// "/data/....parquet". Fully-qualify the URL here, on the main thread
++				// (where window.location is the real page origin), before it's sent into
++				// the worker — otherwise the worker's internal XHR fetch throws
++				// "Failed to execute 'open' on 'XMLHttpRequest': Invalid URL".
++				let registeredUrl = addBasePath(path);
++				if (!registeredUrl.startsWith('http')) {
++					registeredUrl = `${window.location.origin}${registeredUrl}`;
++				}
++				await db.registerFileURL(file_name, registeredUrl, DuckDBDataProtocol.HTTP, false);
+ 				await connection.query(
+ 					`CREATE OR REPLACE VIEW "${source}"."${table}" AS (SELECT * FROM read_parquet('${file_name}'));`
+ 				);
