@@ -21,12 +21,14 @@ player's scarcity value), or **NA** if none apply.
 **On the 2025/2026 columns below**: a player can be released by one team and
 bought by another (or the same team) in a later auction — 27 players in
 this dataset changed teams between 2025 and 2026. Each such player appears
-as a **separate row under each team** they were actually contracted to,
-with the season columns correctly marking only the season(s) they were on
-*that specific* team. Contract price is shown only when the contract type
-is `auction` or `retained` — `replacement` signings (in-season injury/other
-replacements) don't have a comparable public price, so that column is
-intentionally blank for them rather than showing a misleading value.
+as a **separate row under each team** they were actually contracted to. The
+**Active** column marks only the season(s) they were on *that specific*
+team; **Contract 2025** / **Contract 2026** show that season's contract
+type and price together, and are blank for a season this row's team-contract
+wasn't active. Price is shown only when the contract type is `auction` or
+`retained` — `replacement` signings (in-season injury/other replacements)
+don't have a comparable public price, so it's intentionally blank for them
+rather than showing a misleading value.
 
 ```sql roster_data
 select * from neon.team_roster
@@ -40,11 +42,32 @@ select distinct team from ${roster_data} order by team
 
 ```sql filtered_roster
 select
-    team, player_name, playing_role, is_overseas,
-    active_2025, active_2026,
-    contract_type_2025, contract_type_2026,
-    price_2025, price_2026,
-    is_captain, is_wicketkeeper, is_aura_player,
+    team,
+    player_name,
+    '/players/' || player_name as player_url,
+    playing_role,
+    nullif(concat_ws(', ',
+        case when is_overseas then 'Overseas' end,
+        case when is_captain then 'Captain' end,
+        case when is_wicketkeeper then 'Keeper' end,
+        case when is_aura_player then 'Aura' end
+    ), '') as flags,
+    concat_ws(', ',
+        case when active_2025 then '2025' end,
+        case when active_2026 then '2026' end
+    ) as active_seasons,
+    case when active_2025 then
+        nullif(concat_ws(' · ',
+            initcap(contract_type_2025),
+            case when price_2025 is not null then '₹' || price_2025 || ' Cr' end
+        ), '')
+    end as contract_2025,
+    case when active_2026 then
+        nullif(concat_ws(' · ',
+            initcap(contract_type_2026),
+            case when price_2026 is not null then '₹' || price_2026 || ' Cr' end
+        ), '')
+    end as contract_2026,
     coalesce(role_scarcity::text, 'NA') as role_scarcity
 from ${roster_data}
 where team in ${inputs.team_filter.value}
@@ -53,21 +76,20 @@ order by team, player_name
 
 ## Roster
 
-Click any column header to sort.
+Click any column header to sort. Click a row to open that player's profile
+across all six evaluation axes. Flags shows only whichever of
+Overseas / Captain / Keeper / Aura actually apply to that player — blank
+means none do. This replaces four separate Yes/No columns from the previous
+version of this table (same for the two Active-season columns, and folding
+each season's contract type + price into one Contract column instead of two).
 
-<DataTable data={filtered_roster} search=true rows=25 downloadable=false>
+<DataTable data={filtered_roster} search=true rows=25 downloadable=false rowLinks=player_url>
   <Column id=team />
   <Column id=player_name title="Player" />
   <Column id=playing_role title="Role" />
-  <Column id=is_overseas title="Overseas" contentType=colorscale />
-  <Column id=active_2025 title="2025" contentType=colorscale />
-  <Column id=active_2026 title="2026" contentType=colorscale />
-  <Column id=contract_type_2025 title="2025 Type" />
-  <Column id=contract_type_2026 title="2026 Type" />
-  <Column id=price_2025 title="2025 Price (Cr)" />
-  <Column id=price_2026 title="2026 Price (Cr)" />
-  <Column id=is_captain title="Captain" contentType=colorscale />
-  <Column id=is_wicketkeeper title="Keeper" contentType=colorscale />
-  <Column id=is_aura_player title="Aura" contentType=colorscale />
+  <Column id=flags title="Flags" />
+  <Column id=active_seasons title="Active" />
+  <Column id=contract_2025 title="Contract 2025" />
+  <Column id=contract_2026 title="Contract 2026" />
   <Column id=role_scarcity title="Role Scarcity" />
 </DataTable>

@@ -52,6 +52,7 @@ select distinct home_away from ${mvp_data} order by home_away
 ```sql filtered_mvp
 select
     player_id, player_name,
+    '/players/' || player_name as player_url,
     round(sum(batting_mvp), 2) as batting_mvp,
     round(sum(bowling_mvp), 2) as bowling_mvp,
     round(sum(batting_mvp) + sum(bowling_mvp), 2) as total_mvp
@@ -64,7 +65,8 @@ group by player_id, player_name
 ```
 
 ```sql top5_batting
-select player_id, player_name, round(sum(batting_mvp), 2) as batting_mvp
+select player_id, player_name, '/players/' || player_name as player_url,
+    round(sum(batting_mvp), 2) as batting_mvp
 from ${mvp_data}
 where season in ${inputs.season_filter.value}
   and team in ${inputs.team_filter.value}
@@ -75,7 +77,8 @@ order by batting_mvp desc limit 5
 ```
 
 ```sql top5_bowling
-select player_id, player_name, round(sum(bowling_mvp), 2) as bowling_mvp
+select player_id, player_name, '/players/' || player_name as player_url,
+    round(sum(bowling_mvp), 2) as bowling_mvp
 from ${mvp_data}
 where season in ${inputs.season_filter.value}
   and team in ${inputs.team_filter.value}
@@ -86,7 +89,8 @@ order by bowling_mvp desc limit 5
 ```
 
 ```sql top5_total
-select player_id, player_name, round(sum(batting_mvp) + sum(bowling_mvp), 2) as total_mvp
+select player_id, player_name, '/players/' || player_name as player_url,
+    round(sum(batting_mvp) + sum(bowling_mvp), 2) as total_mvp
 from ${mvp_data}
 where season in ${inputs.season_filter.value}
   and team in ${inputs.team_filter.value}
@@ -102,7 +106,7 @@ order by total_mvp desc limit 5
 <div>
 
 **Batting**
-<DataTable data={top5_batting} downloadable=false>
+<DataTable data={top5_batting} downloadable=false rowLinks=player_url>
   <Column id=player_name title="Player" />
   <Column id=batting_mvp title="MVP" />
 </DataTable>
@@ -110,7 +114,7 @@ order by total_mvp desc limit 5
 <div>
 
 **Bowling**
-<DataTable data={top5_bowling} downloadable=false>
+<DataTable data={top5_bowling} downloadable=false rowLinks=player_url>
   <Column id=player_name title="Player" />
   <Column id=bowling_mvp title="MVP" />
 </DataTable>
@@ -118,7 +122,7 @@ order by total_mvp desc limit 5
 <div>
 
 **Total**
-<DataTable data={top5_total} downloadable=false>
+<DataTable data={top5_total} downloadable=false rowLinks=player_url>
   <Column id=player_name title="Player" />
   <Column id=total_mvp title="MVP" />
 </DataTable>
@@ -127,9 +131,10 @@ order by total_mvp desc limit 5
 
 ## All players
 
-Click any column header to sort.
+Click any column header to sort. Click a row to open that player's profile
+across all six evaluation axes.
 
-<DataTable data={filtered_mvp} search=true rows=20 downloadable=false>
+<DataTable data={filtered_mvp} search=true rows=20 downloadable=false rowLinks=player_url>
   <Column id=player_name title="Player" />
   <Column id=batting_mvp title="Batting MVP" />
   <Column id=bowling_mvp title="Bowling MVP" />

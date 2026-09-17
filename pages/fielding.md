@@ -17,7 +17,8 @@ since it needs the full population to mean anything); the filtered table
 further down lets you break the same events down by season/team/phase/home-away.
 
 ```sql fielding_data
-select * from neon.fielding_evaluation
+select *, '/players/' || player_name as player_url
+from neon.fielding_evaluation
 ```
 
 ```sql grey_zone_counts
@@ -34,7 +35,9 @@ from ${fielding_data}
 
 ## Whole-career percentile ranking
 
-<DataTable data={fielding_data} search=true groupBy="peer_group" rows=15 downloadable=false>
+Click a row to open that player's profile across all six evaluation axes.
+
+<DataTable data={fielding_data} search=true groupBy="peer_group" rows=15 downloadable=false rowLinks=player_url>
   <Column id=player_name title="Player" />
   <Column id=catches />
   <Column id=stumpings />
@@ -74,6 +77,7 @@ select distinct home_away from ${fielding_grain} order by home_away
 select
     player_id,
     player_name,
+    '/players/' || player_name as player_url,
     max(playing_role) as role,
     sum(catches) as catches,
     sum(stumpings) as stumpings,
@@ -91,7 +95,7 @@ order by fielding_score desc
 
 Click any column header to sort.
 
-<DataTable data={filtered_fielding} search=true rows=20 downloadable=false>
+<DataTable data={filtered_fielding} search=true rows=20 downloadable=false rowLinks=player_url>
   <Column id=player_name title="Player" />
   <Column id=role title="Role" />
   <Column id=catches />

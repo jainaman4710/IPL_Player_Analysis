@@ -43,6 +43,7 @@ select distinct home_away from ${bowling_data} order by home_away
 select
     player_id,
     player_name,
+    '/players/' || player_name as player_url,
     max(engagement_band) as engagement_band,
     bool_or(has_powerplay_trust) as has_powerplay_trust,
     bool_or(has_death_trust) as has_death_trust,
@@ -67,9 +68,10 @@ order by wickets desc, economy asc
 
 ## Results
 
-Click any column header to sort.
+Click any column header to sort. Click a row to open that player's profile
+across all six evaluation axes.
 
-<DataTable data={filtered_bowling} search=true rows=20 downloadable=false>
+<DataTable data={filtered_bowling} search=true rows=20 downloadable=false rowLinks=player_url>
   <Column id=player_name title="Player" />
   <Column id=engagement_band title="Engagement" />
   <Column id=has_powerplay_trust title="PP Trust" contentType=colorscale />

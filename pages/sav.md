@@ -14,6 +14,9 @@ the second happens when the batting side can afford to take it. SAV credits
 players for outperforming the **specific situation** they were actually in,
 not the raw event.
 
+<details>
+<summary>How SAV is actually calculated (baseline, per-ball credit, venue normalization, open questions)</summary>
+
 ## The baseline: Gaussian-kernel-weighted expected runs
 
 Every legal delivery in the 2025–2026 dataset is placed into a grid cell
@@ -79,6 +82,8 @@ weighted differently from steady scoring at the same total, and whether a
 momentum/partnership multiplier belongs in the model. This page is the core
 mechanism only — flag if either of these should be built out.
 
+</details>
+
 ```sql sav_data
 select * from neon.sav_filterable
 ```
@@ -107,6 +112,7 @@ select distinct home_away from ${sav_data} order by home_away
 ```sql filtered_sav
 select
     player_id, player_name,
+    '/players/' || player_name as player_url,
     round(sum(batting_sav), 2) as batting_sav,
     round(sum(bowling_sav), 2) as bowling_sav,
     round(sum(batting_sav) + sum(bowling_sav), 2) as total_sav
@@ -119,7 +125,8 @@ group by player_id, player_name
 ```
 
 ```sql top5_batting
-select player_id, player_name, round(sum(batting_sav), 2) as batting_sav
+select player_id, player_name, '/players/' || player_name as player_url,
+    round(sum(batting_sav), 2) as batting_sav
 from ${sav_data}
 where season in ${inputs.season_filter.value}
   and team in ${inputs.team_filter.value}
@@ -130,7 +137,8 @@ order by batting_sav desc limit 5
 ```
 
 ```sql top5_bowling
-select player_id, player_name, round(sum(bowling_sav), 2) as bowling_sav
+select player_id, player_name, '/players/' || player_name as player_url,
+    round(sum(bowling_sav), 2) as bowling_sav
 from ${sav_data}
 where season in ${inputs.season_filter.value}
   and team in ${inputs.team_filter.value}
@@ -141,7 +149,8 @@ order by bowling_sav desc limit 5
 ```
 
 ```sql top5_total
-select player_id, player_name, round(sum(batting_sav) + sum(bowling_sav), 2) as total_sav
+select player_id, player_name, '/players/' || player_name as player_url,
+    round(sum(batting_sav) + sum(bowling_sav), 2) as total_sav
 from ${sav_data}
 where season in ${inputs.season_filter.value}
   and team in ${inputs.team_filter.value}
@@ -157,7 +166,7 @@ order by total_sav desc limit 5
 <div>
 
 **Batting**
-<DataTable data={top5_batting} downloadable=false>
+<DataTable data={top5_batting} downloadable=false rowLinks=player_url>
   <Column id=player_name title="Player" />
   <Column id=batting_sav title="SAV" />
 </DataTable>
@@ -165,7 +174,7 @@ order by total_sav desc limit 5
 <div>
 
 **Bowling**
-<DataTable data={top5_bowling} downloadable=false>
+<DataTable data={top5_bowling} downloadable=false rowLinks=player_url>
   <Column id=player_name title="Player" />
   <Column id=bowling_sav title="SAV" />
 </DataTable>
@@ -173,7 +182,7 @@ order by total_sav desc limit 5
 <div>
 
 **Total**
-<DataTable data={top5_total} downloadable=false>
+<DataTable data={top5_total} downloadable=false rowLinks=player_url>
   <Column id=player_name title="Player" />
   <Column id=total_sav title="SAV" />
 </DataTable>
@@ -182,9 +191,10 @@ order by total_sav desc limit 5
 
 ## All players
 
-Click any column header to sort.
+Click any column header to sort. Click a row to open that player's profile
+across all six evaluation axes.
 
-<DataTable data={filtered_sav} search=true rows=20 downloadable=false>
+<DataTable data={filtered_sav} search=true rows=20 downloadable=false rowLinks=player_url>
   <Column id=player_name title="Player" />
   <Column id=batting_sav title="Batting SAV" />
   <Column id=bowling_sav title="Bowling SAV" />

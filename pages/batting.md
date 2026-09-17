@@ -43,6 +43,7 @@ select distinct home_away from ${batting_data} order by home_away
 select
     player_id,
     player_name,
+    '/players/' || player_name as player_url,
     max(batting_role) as batting_role,
     sum(balls_faced) as balls_faced,
     sum(runs) as total_runs,
@@ -66,9 +67,10 @@ order by total_runs desc
 
 ## Results
 
-Click any column header to sort.
+Click any column header to sort. Click a row to open that player's profile
+across all six evaluation axes.
 
-<DataTable data={filtered_batting} search=true rows=20 downloadable=false>
+<DataTable data={filtered_batting} search=true rows=20 downloadable=false rowLinks=player_url>
   <Column id=player_name title="Player" />
   <Column id=batting_role title="Role" />
   <Column id=balls_faced title="Balls" />
