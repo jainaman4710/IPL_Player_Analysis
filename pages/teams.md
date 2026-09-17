@@ -44,7 +44,6 @@ select distinct team from ${roster_data} order by team
 select
     team,
     player_name,
-    '/players/' || player_name as player_url,
     playing_role,
     nullif(concat_ws(', ',
         case when is_overseas then 'Overseas' end,
@@ -58,13 +57,13 @@ select
     ) as active_seasons,
     case when active_2025 then
         nullif(concat_ws(' · ',
-            initcap(contract_type_2025),
+            upper(substr(contract_type_2025, 1, 1)) || substr(contract_type_2025, 2),
             case when price_2025 is not null then '₹' || price_2025 || ' Cr' end
         ), '')
     end as contract_2025,
     case when active_2026 then
         nullif(concat_ws(' · ',
-            initcap(contract_type_2026),
+            upper(substr(contract_type_2026, 1, 1)) || substr(contract_type_2026, 2),
             case when price_2026 is not null then '₹' || price_2026 || ' Cr' end
         ), '')
     end as contract_2026,
@@ -76,14 +75,13 @@ order by team, player_name
 
 ## Roster
 
-Click any column header to sort. Click a row to open that player's profile
-across all six evaluation axes. Flags shows only whichever of
+Click any column header to sort. Flags shows only whichever of
 Overseas / Captain / Keeper / Aura actually apply to that player — blank
 means none do. This replaces four separate Yes/No columns from the previous
 version of this table (same for the two Active-season columns, and folding
 each season's contract type + price into one Contract column instead of two).
 
-<DataTable data={filtered_roster} search=true rows=25 downloadable=false rowLinks=player_url>
+<DataTable data={filtered_roster} search=true rows=25 downloadable=false>
   <Column id=team />
   <Column id=player_name title="Player" />
   <Column id=playing_role title="Role" />

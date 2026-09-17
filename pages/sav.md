@@ -112,7 +112,6 @@ select distinct home_away from ${sav_data} order by home_away
 ```sql filtered_sav
 select
     player_id, player_name,
-    '/players/' || player_name as player_url,
     round(sum(batting_sav), 2) as batting_sav,
     round(sum(bowling_sav), 2) as bowling_sav,
     round(sum(batting_sav) + sum(bowling_sav), 2) as total_sav
@@ -125,7 +124,7 @@ group by player_id, player_name
 ```
 
 ```sql top5_batting
-select player_id, player_name, '/players/' || player_name as player_url,
+select player_id, player_name,
     round(sum(batting_sav), 2) as batting_sav
 from ${sav_data}
 where season in ${inputs.season_filter.value}
@@ -137,7 +136,7 @@ order by batting_sav desc limit 5
 ```
 
 ```sql top5_bowling
-select player_id, player_name, '/players/' || player_name as player_url,
+select player_id, player_name,
     round(sum(bowling_sav), 2) as bowling_sav
 from ${sav_data}
 where season in ${inputs.season_filter.value}
@@ -149,7 +148,7 @@ order by bowling_sav desc limit 5
 ```
 
 ```sql top5_total
-select player_id, player_name, '/players/' || player_name as player_url,
+select player_id, player_name,
     round(sum(batting_sav) + sum(bowling_sav), 2) as total_sav
 from ${sav_data}
 where season in ${inputs.season_filter.value}
@@ -166,7 +165,7 @@ order by total_sav desc limit 5
 <div>
 
 **Batting**
-<DataTable data={top5_batting} downloadable=false rowLinks=player_url>
+<DataTable data={top5_batting} downloadable=false>
   <Column id=player_name title="Player" />
   <Column id=batting_sav title="SAV" />
 </DataTable>
@@ -174,7 +173,7 @@ order by total_sav desc limit 5
 <div>
 
 **Bowling**
-<DataTable data={top5_bowling} downloadable=false rowLinks=player_url>
+<DataTable data={top5_bowling} downloadable=false>
   <Column id=player_name title="Player" />
   <Column id=bowling_sav title="SAV" />
 </DataTable>
@@ -182,7 +181,7 @@ order by total_sav desc limit 5
 <div>
 
 **Total**
-<DataTable data={top5_total} downloadable=false rowLinks=player_url>
+<DataTable data={top5_total} downloadable=false>
   <Column id=player_name title="Player" />
   <Column id=total_sav title="SAV" />
 </DataTable>
@@ -191,10 +190,9 @@ order by total_sav desc limit 5
 
 ## All players
 
-Click any column header to sort. Click a row to open that player's profile
-across all six evaluation axes.
+Click any column header to sort.
 
-<DataTable data={filtered_sav} search=true rows=20 downloadable=false rowLinks=player_url>
+<DataTable data={filtered_sav} search=true rows=20 downloadable=false>
   <Column id=player_name title="Player" />
   <Column id=batting_sav title="Batting SAV" />
   <Column id=bowling_sav title="Bowling SAV" />
