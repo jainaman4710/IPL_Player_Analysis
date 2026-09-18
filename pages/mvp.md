@@ -4,29 +4,11 @@ title: MVP Points
 
 # MVP Points
 
-A documented reconstruction of the real IPL points system (the actual formula
-is proprietary/unpublished; this is a deliberate, explicit choice, not a
-claim of ground truth). Singles, twos, and threes earn **zero** points;
-only the events below contribute.
-
-| Event | Points | Credited to |
-|---|---|---|
-| Four | 2.5 | Batter |
-| Six | 3.5 | Batter |
-| Wicket (bowler-credited) | 3.5 | Bowler |
-| Dot ball | 1.0 | Bowler |
-| Catch / stumping | 2.5 | Fielder (full credit, in addition to bowler's 3.5) |
-| Run-out | 2.5 | Fielder only (not the 3.5 wicket rate; no bowler credit) |
-
-Batting MVP and Bowling MVP are reported separately, never blended into one
-axis-level score; "Total" below is a simple sum of the two for convenience
-(MVP is itself a single points system, so summing its own subcomponents
-doesn't conflict with the project's no-blended-score rule across *categories*
-like Batting/Bowling/SAV).
-
 ```sql mvp_data
 select * from neon.mvp_filterable
 ```
+
+## Filters
 
 ```sql seasons
 select distinct season from ${mvp_data} order by season
@@ -138,3 +120,25 @@ Click any column header to sort.
   <Column id=bowling_mvp title="Bowling MVP" />
   <Column id=total_mvp title="Total MVP" />
 </DataTable>
+
+## About this page
+
+A documented reconstruction of the real IPL points system (the actual formula
+is proprietary/unpublished; this is a deliberate, explicit choice, not a
+claim of ground truth). Singles, twos, and threes earn **zero** points;
+only the events below contribute.
+
+| Event | Points | Credited to |
+|---|---|---|
+| Four | 2.5 | Batter |
+| Six | 3.5 | Batter |
+| Wicket (bowler-credited) | 3.5 | Bowler |
+| Dot ball | 1.0 | Bowler |
+| Catch / stumping | 2.5 | Fielder (full credit, in addition to bowler's 3.5) |
+| Run-out | 2.5 | Fielder only (not the 3.5 wicket rate; no bowler credit) |
+
+Batting MVP and Bowling MVP are reported separately, never blended into one
+axis-level score; "Total" above is a simple sum of the two for convenience
+(MVP is itself a single points system, so summing its own subcomponents
+doesn't conflict with the project's no-blended-score rule across *categories*
+like Batting/Bowling/SAV).
