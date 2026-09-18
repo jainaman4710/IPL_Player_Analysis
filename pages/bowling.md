@@ -4,14 +4,86 @@ title: Bowling
 
 # Bowling
 
-Filter any combination — season, team, phase, opponent batting hand,
-home/away — and the table recomputes live, e.g. 2025 + vs LHB + Death.
+Filter any combination (season, team, phase, opponent batting hand,
+home/away) and the table recomputes live, e.g. 2025 + vs LHB + Death.
 MVP and SAV points (bowling component) are shown here too; each also has
 its own dedicated page with full detail and Top 5 leaderboards.
 
 ```sql bowling_data
 select * from neon.bowling_fact_grain
 ```
+
+```sql bowler_type
+select * from neon.bowler_type
+```
+
+## What stands out (2026, no filters applied)
+
+These are fixed to the current season regardless of the filters below;
+their job is to give you something to notice before you start filtering,
+not to duplicate the table.
+
+```sql best_pace_economy
+select bd.player_name,
+    round(sum(bd.runs_conceded) * 6.0 / nullif(sum(bd.legal_balls), 0), 2) as economy,
+    sum(bd.legal_balls) as legal_balls
+from ${bowling_data} bd
+join ${bowler_type} bt on bt.player_id = bd.player_id
+where bd.season = 2026 and bt.bowler_type = 'Pace'
+group by bd.player_name
+having sum(bd.legal_balls) >= 60
+order by economy asc
+limit 1
+```
+
+```sql best_spin_economy
+select bd.player_name,
+    round(sum(bd.runs_conceded) * 6.0 / nullif(sum(bd.legal_balls), 0), 2) as economy,
+    sum(bd.legal_balls) as legal_balls
+from ${bowling_data} bd
+join ${bowler_type} bt on bt.player_id = bd.player_id
+where bd.season = 2026 and bt.bowler_type = 'Spin'
+group by bd.player_name
+having sum(bd.legal_balls) >= 60
+order by economy asc
+limit 1
+```
+
+```sql top_pp_wickets
+select player_name, sum(wickets) as wkts
+from ${bowling_data}
+where season = 2026 and phase = 'powerplay'
+group by player_name
+order by wkts desc
+limit 1
+```
+
+```sql economy_trend
+with trend as (
+    select player_name,
+        sum(case when season = 2025 then runs_conceded else 0 end) as runs_2025,
+        sum(case when season = 2025 then legal_balls else 0 end) as balls_2025,
+        sum(case when season = 2026 then runs_conceded else 0 end) as runs_2026,
+        sum(case when season = 2026 then legal_balls else 0 end) as balls_2026
+    from ${bowling_data}
+    group by player_name
+)
+select player_name,
+    round(runs_2025 * 6.0 / balls_2025, 2) as econ_2025,
+    round(runs_2026 * 6.0 / balls_2026, 2) as econ_2026,
+    round((runs_2025 * 6.0 / balls_2025) - (runs_2026 * 6.0 / balls_2026), 2) as econ_improvement
+from trend
+where balls_2025 >= 60 and balls_2026 >= 60
+order by econ_improvement desc
+limit 1
+```
+
+- **Best economy, Pace** (min. 10 overs): {best_pace_economy[0].player_name} at {best_pace_economy[0].economy}
+- **Best economy, Spin** (min. 10 overs): {best_spin_economy[0].player_name} at {best_spin_economy[0].economy}
+- **Most Powerplay wickets:** {top_pp_wickets[0].player_name} ({top_pp_wickets[0].wkts})
+- **Biggest economy improvement, 2025 to 2026** (min. 10 overs each season): {economy_trend[0].player_name}, {economy_trend[0].econ_2025} down to {economy_trend[0].econ_2026}
+
+## Filters
 
 ```sql seasons
 select distinct season from ${bowling_data} order by season

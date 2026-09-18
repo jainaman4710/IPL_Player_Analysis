@@ -5,8 +5,8 @@ title: MVP Points
 # MVP Points
 
 A documented reconstruction of the real IPL points system (the actual formula
-is proprietary/unpublished — this is a deliberate, explicit choice, not a
-claim of ground truth). Singles, twos, and threes earn **zero** points —
+is proprietary/unpublished; this is a deliberate, explicit choice, not a
+claim of ground truth). Singles, twos, and threes earn **zero** points;
 only the events below contribute.
 
 | Event | Points | Credited to |
@@ -19,7 +19,7 @@ only the events below contribute.
 | Run-out | 2.5 | Fielder only (not the 3.5 wicket rate; no bowler credit) |
 
 Batting MVP and Bowling MVP are reported separately, never blended into one
-axis-level score — "Total" below is a simple sum of the two for convenience
+axis-level score; "Total" below is a simple sum of the two for convenience
 (MVP is itself a single points system, so summing its own subcomponents
 doesn't conflict with the project's no-blended-score rule across *categories*
 like Batting/Bowling/SAV).

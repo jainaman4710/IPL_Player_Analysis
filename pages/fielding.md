@@ -4,10 +4,10 @@ title: Fielding
 
 # Fielding
 
-Not a primary decision-layer metric — used to push a Grey Zone player into
+Not a primary decision-layer metric; used to push a Grey Zone player into
 Retain (top 15th percentile of fielding score). Percentile rank is computed
 **separately within WK and non-WK peer groups**, since a wicketkeeper has far
-more catch/stumping opportunities than an outfielder — a league-wide
+more catch/stumping opportunities than an outfielder, and a league-wide
 percentile would fill the top 15% almost entirely with keepers.
 
 Fielding score = MVP-formula fielding points (2.5 per catch, stumping, or
@@ -28,10 +28,23 @@ select
 from ${fielding_data}
 ```
 
+```sql grey_zone_leaders
+select peer_group, player_name, fielding_score, fielding_percentile
+from (
+    select peer_group, player_name, fielding_score, fielding_percentile,
+        row_number() over (partition by peer_group order by fielding_percentile desc, fielding_score desc) as rn
+    from ${fielding_data}
+) ranked
+where rn = 1
+```
+
 <Grid cols=2>
   <BigValue data={grey_zone_counts} value=wk_top_15 title="WKs in top 15th percentile" />
   <BigValue data={grey_zone_counts} value=non_wk_top_15 title="Non-WKs in top 15th percentile" />
 </Grid>
+
+- **WK leader:** {grey_zone_leaders.filter(r => r.peer_group === 'WK')[0].player_name} (percentile {grey_zone_leaders.filter(r => r.peer_group === 'WK')[0].fielding_percentile})
+- **Non-WK leader:** {grey_zone_leaders.filter(r => r.peer_group === 'non-WK')[0].player_name} (percentile {grey_zone_leaders.filter(r => r.peer_group === 'non-WK')[0].fielding_percentile})
 
 ## Whole-career percentile ranking
 

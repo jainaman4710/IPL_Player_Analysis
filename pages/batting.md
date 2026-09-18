@@ -13,6 +13,67 @@ dedicated page with full detail and Top 5 leaderboards.
 select * from neon.batting_fact_grain
 ```
 
+## What stands out (2026, no filters applied)
+
+These are fixed to the current season regardless of the filters below;
+their job is to give you something to notice before you start filtering,
+not to duplicate the table.
+
+```sql top_death_scorer
+select player_name, sum(runs) as total_runs
+from ${batting_data}
+where season = 2026 and phase = 'death'
+group by player_name
+order by total_runs desc
+limit 1
+```
+
+```sql home_away_split
+with per_player as (
+    select player_name,
+        sum(case when home_away = 'Home' then runs else 0 end) as home_runs,
+        sum(case when home_away = 'Home' then balls_faced else 0 end) as home_balls,
+        sum(case when home_away = 'Away' then runs else 0 end) as away_runs,
+        sum(case when home_away = 'Away' then balls_faced else 0 end) as away_balls
+    from ${batting_data}
+    where season = 2026
+    group by player_name
+)
+select player_name,
+    round(home_runs * 100.0 / nullif(home_balls, 0), 1) as home_sr,
+    round(away_runs * 100.0 / nullif(away_balls, 0), 1) as away_sr
+from per_player
+where home_balls >= 30 and away_balls >= 30
+order by (home_runs * 100.0 / home_balls) - (away_runs * 100.0 / away_balls) desc
+limit 1
+```
+
+```sql most_improved
+with trend as (
+    select player_name,
+        sum(case when season = 2025 then runs else 0 end) as runs_2025,
+        sum(case when season = 2025 then balls_faced else 0 end) as balls_2025,
+        sum(case when season = 2026 then runs else 0 end) as runs_2026,
+        sum(case when season = 2026 then balls_faced else 0 end) as balls_2026
+    from ${batting_data}
+    group by player_name
+)
+select player_name,
+    round(runs_2025 * 100.0 / balls_2025, 1) as sr_2025,
+    round(runs_2026 * 100.0 / balls_2026, 1) as sr_2026,
+    round(((runs_2026 * 100.0 / balls_2026) - (runs_2025 * 100.0 / balls_2025)) / (runs_2025 * 100.0 / balls_2025) * 100, 1) as pct_change
+from trend
+where balls_2025 >= 60 and balls_2026 >= 60 and runs_2025 > 0
+order by pct_change desc
+limit 1
+```
+
+- **Top Death-overs scorer:** {top_death_scorer[0].player_name} ({top_death_scorer[0].total_runs} runs), minimum sample: none applied, small totals are possible
+- **Biggest home/away swing** (min. 30 balls each venue type): {home_away_split[0].player_name}, strike rate {home_away_split[0].home_sr} at home vs {home_away_split[0].away_sr} away
+- **Most improved, 2025 to 2026** (min. 60 balls each season): {most_improved[0].player_name}, strike rate {most_improved[0].sr_2025} to {most_improved[0].sr_2026} (+{most_improved[0].pct_change}%)
+
+## Filters
+
 ```sql seasons
 select distinct season from ${batting_data} order by season
 ```
