@@ -191,12 +191,4 @@ the league-wide average, producing a per-venue multiplier applied to every
 credit earned at that ground, so a knock at a genuinely tough batting
 venue isn't undervalued relative to the same knock at a batting-friendly one.
 
-## What this page does *not* yet do
-
-Two open questions from the original spec are intentionally not implemented:
-whether boom-or-bust scoring (one big over, several quiet ones) should be
-weighted differently from steady scoring at the same total, and whether a
-momentum/partnership multiplier belongs in the model. This page is the core
-mechanism only; flag if either of these should be built out.
-
 </details>

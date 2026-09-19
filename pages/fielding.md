@@ -18,18 +18,8 @@ select distinct season from ${fielding_grain} order by season
 select distinct team from ${fielding_grain} order by team
 ```
 
-```sql phases
-select distinct phase from ${fielding_grain} order by phase
-```
-
-```sql home_away_options
-select distinct home_away from ${fielding_grain} order by home_away
-```
-
 <Dropdown data={seasons} name=season_filter value=season multiple=true selectAllByDefault=true title="Season" />
 <Dropdown data={teams} name=team_filter value=team multiple=true selectAllByDefault=true title="Team" />
-<Dropdown data={phases} name=phase_filter value=phase multiple=true selectAllByDefault=true title="Phase" />
-<Dropdown data={home_away_options} name=home_away_filter value=home_away multiple=true selectAllByDefault=true title="Home / Away" />
 
 ```sql filtered_fielding
 select
@@ -43,14 +33,12 @@ select
 from ${fielding_grain}
 where season in ${inputs.season_filter.value}
   and team in ${inputs.team_filter.value}
-  and phase in ${inputs.phase_filter.value}
-  and home_away in ${inputs.home_away_filter.value}
 group by player_id, player_name
 having sum(catches) + sum(stumpings) + sum(run_outs) > 0
 order by fielding_score desc
 ```
 
-## Results (season / team / phase / home-away)
+## Results (season / team)
 
 Click any column header to sort.
 

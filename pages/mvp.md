@@ -123,10 +123,14 @@ Click any column header to sort.
 
 ## About this page
 
-A documented reconstruction of the real IPL points system (the actual formula
-is proprietary/unpublished; this is a deliberate, explicit choice, not a
-claim of ground truth). Singles, twos, and threes earn **zero** points;
-only the events below contribute.
+An attempt to replicate the IPL's own MVP points system using public
+reporting, not a reconstruction from the actual formula (which IPL has
+never published in full). The point values below match Wisden's published
+account of the system<sup>1</sup>; the underlying idea (points for boundaries,
+wickets, dot balls, and fielding, with no credit for ones/twos/threes) is
+also discussed in an independent academic comparison of the existing
+system against alternative formulas<sup>2</sup>. Singles, twos, and threes earn
+**zero** points; only the events below contribute.
 
 | Event | Points | Credited to |
 |---|---|---|
@@ -142,3 +146,14 @@ axis-level score; "Total" above is a simple sum of the two for convenience
 (MVP is itself a single points system, so summing its own subcomponents
 doesn't conflict with the project's no-blended-score rule across *categories*
 like Batting/Bowling/SAV).
+
+**Sources**
+
+1. Wisden, "IPL 2024 MVP table: Updated points tally for Most Valuable
+   Player of IPL 2024": states four = 2.5 points, six = 3.5, wicket = 3.5,
+   dot ball = 1, catch/stumping = 2.5, matching the values used here.
+2. "Beyond the Boundary: Revolutionizing the IPL MVP Index" (Wharton
+   School working paper): an independent academic comparison of the
+   existing IPL MVP formula against a proposed regression-based
+   alternative; confirms a documented public system exists and has been
+   studied outside the league itself.

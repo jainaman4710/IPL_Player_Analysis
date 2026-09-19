@@ -51,14 +51,16 @@ trade-off yourself.
   hand, and home/away; includes engagement band, trust marks, MVP points,
   and SAV.
 - **[Fielding](/fielding)**: percentile rank within wicketkeeper and
-  non-wicketkeeper peer groups, with a season/team/phase/home-away
-  breakdown.
+  non-wicketkeeper peer groups, with a season/team breakdown.
 - **[SAV](/sav)**: situation-aware value, normalized for venue, with
   Top 5 leaderboards and full methodology.
 - **[MVP Points](/mvp)**: points formula for batting and bowling, reported
   separately, with Top 5 leaderboards.
 - **Teams**: full rosters with career-level flags and Role Scarcity, by
   season: [2025](/teams/2025) · [2026](/teams/2026)
+- **[Compare Players](/compare)**: pick two or three players and see all
+  seven axes side by side, for a direct "keep X or take a swing at Y"
+  question.
 
 Everything on this site is generated directly from SQL views in the
 project's database; no metric here is computed outside the database.
