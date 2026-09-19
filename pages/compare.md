@@ -4,11 +4,10 @@ title: Compare Players
 
 # Compare Players
 
-Pick players to lay their numbers side by side (Player A and B are the
-main comparison; C is optional). This is the same seven independent axes
-used everywhere else on the site, no blended score here either: pick the
-alternatives you're actually weighing against each other for a
-retain/release call, and read the trade-off yourself.
+Pick two or three players to lay their numbers side by side. This is the
+same seven independent axes used everywhere else on the site, no blended
+score here either: pick the alternatives you're actually weighing against
+each other for a retain/release call, and read the trade-off yourself.
 
 Each player's team, role, and flags reflect their current season snapshot
 (2026 roster if they're on one, otherwise 2025). Batting, bowling, SAV,
@@ -21,9 +20,9 @@ from neon.team_roster
 order by player_name
 ```
 
-<Dropdown data={player_list} name=player_a value=player_name title="Player A" multiple=true defaultValue={['V Kohli']} />
-<Dropdown data={player_list} name=player_b value=player_name title="Player B" multiple=true defaultValue={['SV Samson']} />
-<Dropdown data={player_list} name=player_c value=player_name title="Player C (optional)" multiple=true defaultValue={['JJ Bumrah']} />
+<Dropdown data={player_list} name=player_a value=player_name title="Player A" defaultValue="V Kohli" />
+<Dropdown data={player_list} name=player_b value=player_name title="Player B" defaultValue="SV Samson" />
+<Dropdown data={player_list} name=player_c value=player_name title="Player C (optional)" defaultValue="JJ Bumrah" />
 
 ```sql seasons
 select distinct season from neon.batting_fact_grain order by season
@@ -107,31 +106,31 @@ select
     sv.batting_sav, sv.bowling_sav, sv.total_sav,
     mv.batting_mvp, mv.bowling_mvp, mv.total_mvp, mr.mvp_rank,
     f.fielding_percentile, f.peer_group
-from current_snapshot s
-left join batting_agg b on b.player_id = s.player_id
-left join bowling_agg bw on bw.player_id = s.player_id
-left join sav_agg sv on sv.player_id = s.player_id
-left join mvp_agg mv on mv.player_id = s.player_id
-left join mvp_rank mr on mr.player_id = s.player_id
-left join fielding_data f on f.player_id = s.player_id
+from ${current_snapshot} s
+left join ${batting_agg} b on b.player_id = s.player_id
+left join ${bowling_agg} bw on bw.player_id = s.player_id
+left join ${sav_agg} sv on sv.player_id = s.player_id
+left join ${mvp_agg} mv on mv.player_id = s.player_id
+left join ${mvp_rank} mr on mr.player_id = s.player_id
+left join ${fielding_data} f on f.player_id = s.player_id
 where s.rn = 1
 ```
 
 ```sql player_a_stats
-select * from ${compare_pool} where player_name in ${inputs.player_a.value} limit 1
+select * from ${compare_pool} where player_name = '${inputs.player_a.value}'
 ```
 
 ```sql player_b_stats
-select * from ${compare_pool} where player_name in ${inputs.player_b.value} limit 1
+select * from ${compare_pool} where player_name = '${inputs.player_b.value}'
 ```
 
 ```sql player_c_stats
-select * from ${compare_pool} where player_name in ${inputs.player_c.value} limit 1
+select * from ${compare_pool} where player_name = '${inputs.player_c.value}'
 ```
 
 ## Side by side
 
-| Metric | {inputs.player_a.label} | {inputs.player_b.label} | {inputs.player_c.label} |
+| Metric | {inputs.player_a.value} | {inputs.player_b.value} | {inputs.player_c.value} |
 |---|---|---|---|
 | Team | {player_a_stats[0]?.team ?? '-'} | {player_b_stats[0]?.team ?? '-'} | {player_c_stats[0]?.team ?? '-'} |
 | Role | {player_a_stats[0]?.playing_role ?? '-'} | {player_b_stats[0]?.playing_role ?? '-'} | {player_c_stats[0]?.playing_role ?? '-'} |
@@ -153,5 +152,4 @@ select * from ${compare_pool} where player_name in ${inputs.player_c.value} limi
 
 Fielding percentile is only comparable within the same peer group (WK vs
 non-WK); it's shown here with the peer group it was computed against, not
-as a league-wide number. If you select more than one player in a single
-slot, only the first is used in the table above.
+as a league-wide number.
