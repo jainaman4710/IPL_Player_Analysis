@@ -130,26 +130,134 @@ select * from ${compare_pool} where player_name = '${inputs.player_c.value}'
 
 ## Side by side
 
-| Metric | {inputs.player_a.value} | {inputs.player_b.value} | {inputs.player_c.value} |
-|---|---|---|---|
-| Team | {player_a_stats[0]?.team ?? '-'} | {player_b_stats[0]?.team ?? '-'} | {player_c_stats[0]?.team ?? '-'} |
-| Role | {player_a_stats[0]?.playing_role ?? '-'} | {player_b_stats[0]?.playing_role ?? '-'} | {player_c_stats[0]?.playing_role ?? '-'} |
-| Overseas | {player_a_stats[0]?.is_overseas ? 'Yes' : 'No'} | {player_b_stats[0]?.is_overseas ? 'Yes' : 'No'} | {player_c_stats[0]?.is_overseas ? 'Yes' : 'No'} |
-| Additional Flags | {[player_a_stats[0]?.is_captain && 'Captain', player_a_stats[0]?.is_wicketkeeper && 'Keeper'].filter(Boolean).length ? [player_a_stats[0]?.is_captain && 'Captain', player_a_stats[0]?.is_wicketkeeper && 'Keeper'].filter(Boolean).join(', ') : '-'} | {[player_b_stats[0]?.is_captain && 'Captain', player_b_stats[0]?.is_wicketkeeper && 'Keeper'].filter(Boolean).length ? [player_b_stats[0]?.is_captain && 'Captain', player_b_stats[0]?.is_wicketkeeper && 'Keeper'].filter(Boolean).join(', ') : '-'} | {[player_c_stats[0]?.is_captain && 'Captain', player_c_stats[0]?.is_wicketkeeper && 'Keeper'].filter(Boolean).length ? [player_c_stats[0]?.is_captain && 'Captain', player_c_stats[0]?.is_wicketkeeper && 'Keeper'].filter(Boolean).join(', ') : '-'} |
-| Role Scarcity | {player_a_stats[0]?.role_scarcity ?? 'NA'} | {player_b_stats[0]?.role_scarcity ?? 'NA'} | {player_c_stats[0]?.role_scarcity ?? 'NA'} |
-| Runs (selected seasons) | {player_a_stats[0]?.total_runs ?? '-'} | {player_b_stats[0]?.total_runs ?? '-'} | {player_c_stats[0]?.total_runs ?? '-'} |
-| Batting SR | {player_a_stats[0]?.strike_rate ?? '-'} | {player_b_stats[0]?.strike_rate ?? '-'} | {player_c_stats[0]?.strike_rate ?? '-'} |
-| Batting Avg | {player_a_stats[0]?.average ?? '-'} | {player_b_stats[0]?.average ?? '-'} | {player_c_stats[0]?.average ?? '-'} |
-| Wickets (selected seasons) | {player_a_stats[0]?.wickets ?? '-'} | {player_b_stats[0]?.wickets ?? '-'} | {player_c_stats[0]?.wickets ?? '-'} |
-| Bowling Economy | {player_a_stats[0]?.economy ?? '-'} | {player_b_stats[0]?.economy ?? '-'} | {player_c_stats[0]?.economy ?? '-'} |
-| Batting SAV | {player_a_stats[0]?.batting_sav ?? '-'} | {player_b_stats[0]?.batting_sav ?? '-'} | {player_c_stats[0]?.batting_sav ?? '-'} |
-| Bowling SAV | {player_a_stats[0]?.bowling_sav ?? '-'} | {player_b_stats[0]?.bowling_sav ?? '-'} | {player_c_stats[0]?.bowling_sav ?? '-'} |
-| Total SAV | {player_a_stats[0]?.total_sav ?? '-'} | {player_b_stats[0]?.total_sav ?? '-'} | {player_c_stats[0]?.total_sav ?? '-'} |
-| Batting MVP | {player_a_stats[0]?.batting_mvp ?? '-'} | {player_b_stats[0]?.batting_mvp ?? '-'} | {player_c_stats[0]?.batting_mvp ?? '-'} |
-| Bowling MVP | {player_a_stats[0]?.bowling_mvp ?? '-'} | {player_b_stats[0]?.bowling_mvp ?? '-'} | {player_c_stats[0]?.bowling_mvp ?? '-'} |
-| Total MVP (rank, selected seasons) | {player_a_stats[0]?.total_mvp ?? '-'} (#{player_a_stats[0]?.mvp_rank ?? '-'}) | {player_b_stats[0]?.total_mvp ?? '-'} (#{player_b_stats[0]?.mvp_rank ?? '-'}) | {player_c_stats[0]?.total_mvp ?? '-'} (#{player_c_stats[0]?.mvp_rank ?? '-'}) |
-| Fielding Percentile | {player_a_stats[0]?.fielding_percentile ?? '-'} ({player_a_stats[0]?.peer_group ?? '-'}) | {player_b_stats[0]?.fielding_percentile ?? '-'} ({player_b_stats[0]?.peer_group ?? '-'}) | {player_c_stats[0]?.fielding_percentile ?? '-'} ({player_c_stats[0]?.peer_group ?? '-'}) |
+<table>
+<thead>
+<tr>
+  <th>Metric</th>
+  <th>{inputs.player_a.value}</th>
+  <th>{inputs.player_b.value}</th>
+  <th>{inputs.player_c.value}</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Team</td>
+  <td>{player_a_stats[0]?.team ?? '-'}</td>
+  <td>{player_b_stats[0]?.team ?? '-'}</td>
+  <td>{player_c_stats[0]?.team ?? '-'}</td>
+</tr>
+<tr>
+  <td>Role</td>
+  <td>{player_a_stats[0]?.playing_role ?? '-'}</td>
+  <td>{player_b_stats[0]?.playing_role ?? '-'}</td>
+  <td>{player_c_stats[0]?.playing_role ?? '-'}</td>
+</tr>
+<tr>
+  <td>Overseas</td>
+  <td>{player_a_stats[0]?.is_overseas ? 'Yes' : 'No'}</td>
+  <td>{player_b_stats[0]?.is_overseas ? 'Yes' : 'No'}</td>
+  <td>{player_c_stats[0]?.is_overseas ? 'Yes' : 'No'}</td>
+</tr>
+<tr>
+  <td>Additional Flags</td>
+  <td>{[player_a_stats[0]?.is_captain && 'Captain', player_a_stats[0]?.is_wicketkeeper && 'Keeper'].filter(Boolean).length ? [player_a_stats[0]?.is_captain && 'Captain', player_a_stats[0]?.is_wicketkeeper && 'Keeper'].filter(Boolean).join(', ') : '-'}</td>
+  <td>{[player_b_stats[0]?.is_captain && 'Captain', player_b_stats[0]?.is_wicketkeeper && 'Keeper'].filter(Boolean).length ? [player_b_stats[0]?.is_captain && 'Captain', player_b_stats[0]?.is_wicketkeeper && 'Keeper'].filter(Boolean).join(', ') : '-'}</td>
+  <td>{[player_c_stats[0]?.is_captain && 'Captain', player_c_stats[0]?.is_wicketkeeper && 'Keeper'].filter(Boolean).length ? [player_c_stats[0]?.is_captain && 'Captain', player_c_stats[0]?.is_wicketkeeper && 'Keeper'].filter(Boolean).join(', ') : '-'}</td>
+</tr>
+<tr>
+  <td>Role Scarcity</td>
+  <td>{player_a_stats[0]?.role_scarcity ?? 'NA'}</td>
+  <td>{player_b_stats[0]?.role_scarcity ?? 'NA'}</td>
+  <td>{player_c_stats[0]?.role_scarcity ?? 'NA'}</td>
+</tr>
+<tr>
+  <td colspan="4" style="background-color: rgba(59, 130, 246, 0.15); font-weight: 600;">Batting</td>
+</tr>
+<tr style="background-color: rgba(59, 130, 246, 0.06);">
+  <td>Runs (selected seasons)</td>
+  <td>{player_a_stats[0]?.total_runs ?? '-'}</td>
+  <td>{player_b_stats[0]?.total_runs ?? '-'}</td>
+  <td>{player_c_stats[0]?.total_runs ?? '-'}</td>
+</tr>
+<tr style="background-color: rgba(59, 130, 246, 0.06);">
+  <td>Batting SR</td>
+  <td>{player_a_stats[0]?.strike_rate ?? '-'}</td>
+  <td>{player_b_stats[0]?.strike_rate ?? '-'}</td>
+  <td>{player_c_stats[0]?.strike_rate ?? '-'}</td>
+</tr>
+<tr style="background-color: rgba(59, 130, 246, 0.06);">
+  <td>Batting Avg</td>
+  <td>{player_a_stats[0]?.average ?? '-'}</td>
+  <td>{player_b_stats[0]?.average ?? '-'}</td>
+  <td>{player_c_stats[0]?.average ?? '-'}</td>
+</tr>
+<tr style="background-color: rgba(59, 130, 246, 0.06);">
+  <td>Batting SAV</td>
+  <td>{player_a_stats[0]?.batting_sav ?? '-'}</td>
+  <td>{player_b_stats[0]?.batting_sav ?? '-'}</td>
+  <td>{player_c_stats[0]?.batting_sav ?? '-'}</td>
+</tr>
+<tr style="background-color: rgba(59, 130, 246, 0.06);">
+  <td>Batting MVP</td>
+  <td>{player_a_stats[0]?.batting_mvp ?? '-'}</td>
+  <td>{player_b_stats[0]?.batting_mvp ?? '-'}</td>
+  <td>{player_c_stats[0]?.batting_mvp ?? '-'}</td>
+</tr>
+<tr>
+  <td colspan="4" style="background-color: rgba(249, 115, 22, 0.15); font-weight: 600;">Bowling</td>
+</tr>
+<tr style="background-color: rgba(249, 115, 22, 0.06);">
+  <td>Wickets (selected seasons)</td>
+  <td>{player_a_stats[0]?.wickets ?? '-'}</td>
+  <td>{player_b_stats[0]?.wickets ?? '-'}</td>
+  <td>{player_c_stats[0]?.wickets ?? '-'}</td>
+</tr>
+<tr style="background-color: rgba(249, 115, 22, 0.06);">
+  <td>Bowling Economy</td>
+  <td>{player_a_stats[0]?.economy ?? '-'}</td>
+  <td>{player_b_stats[0]?.economy ?? '-'}</td>
+  <td>{player_c_stats[0]?.economy ?? '-'}</td>
+</tr>
+<tr style="background-color: rgba(249, 115, 22, 0.06);">
+  <td>Bowling SAV</td>
+  <td>{player_a_stats[0]?.bowling_sav ?? '-'}</td>
+  <td>{player_b_stats[0]?.bowling_sav ?? '-'}</td>
+  <td>{player_c_stats[0]?.bowling_sav ?? '-'}</td>
+</tr>
+<tr style="background-color: rgba(249, 115, 22, 0.06);">
+  <td>Bowling MVP</td>
+  <td>{player_a_stats[0]?.bowling_mvp ?? '-'}</td>
+  <td>{player_b_stats[0]?.bowling_mvp ?? '-'}</td>
+  <td>{player_c_stats[0]?.bowling_mvp ?? '-'}</td>
+</tr>
+<tr>
+  <td colspan="4" style="background-color: rgba(115, 115, 115, 0.12); font-weight: 600;">Combined and other</td>
+</tr>
+<tr>
+  <td>Total SAV</td>
+  <td>{player_a_stats[0]?.total_sav ?? '-'}</td>
+  <td>{player_b_stats[0]?.total_sav ?? '-'}</td>
+  <td>{player_c_stats[0]?.total_sav ?? '-'}</td>
+</tr>
+<tr>
+  <td>Total MVP (rank, selected seasons)</td>
+  <td>{player_a_stats[0]?.total_mvp ?? '-'} (#{player_a_stats[0]?.mvp_rank ?? '-'})</td>
+  <td>{player_b_stats[0]?.total_mvp ?? '-'} (#{player_b_stats[0]?.mvp_rank ?? '-'})</td>
+  <td>{player_c_stats[0]?.total_mvp ?? '-'} (#{player_c_stats[0]?.mvp_rank ?? '-'})</td>
+</tr>
+<tr>
+  <td>Fielding Percentile</td>
+  <td>{player_a_stats[0]?.fielding_percentile ?? '-'} ({player_a_stats[0]?.peer_group ?? '-'})</td>
+  <td>{player_b_stats[0]?.fielding_percentile ?? '-'} ({player_b_stats[0]?.peer_group ?? '-'})</td>
+  <td>{player_c_stats[0]?.fielding_percentile ?? '-'} ({player_c_stats[0]?.peer_group ?? '-'})</td>
+</tr>
+</tbody>
+</table>
 
-Fielding percentile is only comparable within the same peer group (WK vs
-non-WK); it's shown here with the peer group it was computed against, not
-as a league-wide number.
+The Batting and Bowling sections are tinted (blue and orange) to make the
+two easy to tell apart at a glance; Team/Role/Flags/Role Scarcity above
+them and Total SAV/Total MVP/Fielding Percentile below them are left
+neutral since they aren't specific to one discipline. Fielding percentile
+is only comparable within the same peer group (WK vs non-WK); it's shown
+here with the peer group it was computed against, not as a league-wide
+number.
