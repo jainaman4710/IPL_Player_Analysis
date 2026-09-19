@@ -18,8 +18,13 @@ select distinct season from ${fielding_grain} order by season
 select distinct team from ${fielding_grain} order by team
 ```
 
+```sql peer_groups
+select distinct peer_group from ${fielding_grain} order by peer_group
+```
+
 <Dropdown data={seasons} name=season_filter value=season multiple=true selectAllByDefault=true title="Season" />
 <Dropdown data={teams} name=team_filter value=team multiple=true selectAllByDefault=true title="Team" />
+<Dropdown data={peer_groups} name=peer_group_filter value=peer_group multiple=true selectAllByDefault=true title="WK / non-WK" />
 
 ```sql filtered_fielding
 select
@@ -33,12 +38,13 @@ select
 from ${fielding_grain}
 where season in ${inputs.season_filter.value}
   and team in ${inputs.team_filter.value}
+  and peer_group in ${inputs.peer_group_filter.value}
 group by player_id, player_name
 having sum(catches) + sum(stumpings) + sum(run_outs) > 0
 order by fielding_score desc
 ```
 
-## Results (season / team)
+## Results (season / team / WK-non-WK)
 
 Click any column header to sort.
 
@@ -75,6 +81,10 @@ from (
 where rn = 1
 ```
 
+```sql fielding_data_filtered
+select * from ${fielding_data} where peer_group in ${inputs.peer_group_filter.value}
+```
+
 <Grid cols=2>
   <BigValue data={grey_zone_counts} value=wk_top_15 title="WKs in top 15th percentile" />
   <BigValue data={grey_zone_counts} value=non_wk_top_15 title="Non-WKs in top 15th percentile" />
@@ -83,7 +93,12 @@ where rn = 1
 - **WK leader:** {grey_zone_leaders.filter(r => r.peer_group === 'WK')[0].player_name} (percentile {grey_zone_leaders.filter(r => r.peer_group === 'WK')[0].fielding_percentile})
 - **Non-WK leader:** {grey_zone_leaders.filter(r => r.peer_group === 'non-WK')[0].player_name} (percentile {grey_zone_leaders.filter(r => r.peer_group === 'non-WK')[0].fielding_percentile})
 
-<DataTable data={fielding_data} search=true groupBy="peer_group" rows=15 downloadable=false>
+The WK / non-WK filter above (from the Results section) also narrows the
+table below; the two count cards and the leader lines just above always
+show both groups regardless of that filter, since they're meant as a
+fixed reference point.
+
+<DataTable data={fielding_data_filtered} search=true groupBy="peer_group" rows=15 downloadable=false>
   <Column id=player_name title="Player" />
   <Column id=catches />
   <Column id=stumpings />
