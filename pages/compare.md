@@ -26,8 +26,10 @@ order by player_name
 
 ```sql current_snapshot
 select
-    player_id, player_name, team, is_overseas, is_captain, is_wicketkeeper,
-    role_scarcity, playing_role,
+    player_id, player_name, team,
+    is_overseas, role_scarcity, playing_role,
+    case when active_2026 then is_captain_2026 else is_captain_2025 end as is_captain,
+    case when active_2026 then is_wicketkeeper_2026 else is_wicketkeeper_2025 end as is_wicketkeeper,
     row_number() over (partition by player_id order by active_2026 desc, active_2025 desc) as rn
 from neon.team_roster
 ```
