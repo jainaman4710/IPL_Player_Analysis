@@ -96,7 +96,8 @@ Requires Node 22 (see `.node-version`).
    - Copy `sources/neon/connection.options.yaml.template` to
      `sources/neon/connection.options.yaml` and fill in the
      `dashboard_reader` username and password, **base64-encoded**. This file
-     holds credentials and must never be committed.
+     holds credentials and must never be committed (it is listed in
+     `.gitignore`).
 3. `npm run sources` pulls data from Neon into local Parquet files.
 4. `npm run dev` starts a local dev server to preview while editing.
 5. `npm run build` produces the static site (`build:strict` fails on any
@@ -147,8 +148,15 @@ Each of these caused a real build failure or a broken page.
 
 - Config: `wrangler.jsonc` serves `./.evidence/template/build` as static
   assets.
-- The build must run `npm run sources && npm run build` before
-  `npx wrangler deploy`.
+- Build settings in the Cloudflare dashboard:
+
+  | Setting | Value |
+  |---|---|
+  | Build command | `npm install && npm run sources && npm run build` |
+  | Deploy command | `npx wrangler deploy` |
+  | Version command | `npx wrangler versions upload` |
+  | Root directory | `/` |
+
 - Node 22 comes from `.node-version`; `legacy-peer-deps` from `.npmrc`.
 - Set these environment variables in the Cloudflare build environment
   (same values as `connection.options.yaml`, base64-encoded):
